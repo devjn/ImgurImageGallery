@@ -15,10 +15,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.recyclerview.widget.*
 import com.github.devjn.imgurimagegallery.BR
 import com.github.devjn.imgurimagegallery.R
 import com.github.devjn.imgurimagegallery.Section
@@ -58,19 +55,27 @@ class MainFragment : Fragment() {
         binding.setLifecycleOwner(this)
         binding.viewModel = viewModel
         binding.list.apply {
-            val spans = if (resources.configuration.orientation == ORIENTATION_PORTRAIT) 2 else 3
-            layoutManager = StaggeredGridLayoutManager(spans, ORIENTATION_PORTRAIT) //GridLayoutManager(context, spans)
             itemAnimator = DefaultItemAnimator()
             addItemDecoration(GridSpacingItemDecoration(AndroidUtils.dp(16), true))
         }
         adapter = Adapter(object : ClickListener {
             override fun onClick(data: DataItem) {
-                startActivity(Intent(activity, DetailsActivity::class.java).apply{
+                startActivity(Intent(activity, DetailsActivity::class.java).apply {
                     putExtra("data", data)
                 })
             }
         })
         binding.list.adapter = adapter
+        viewModel.layoutType.observe(this, Observer {
+            binding.list.apply {
+                val spans = if (resources.configuration.orientation == ORIENTATION_PORTRAIT) 2 else 3
+                layoutManager = when (it) {
+                    0 -> LinearLayoutManager(requireContext())
+                    1 -> GridLayoutManager(requireContext(), spans)
+                    else -> StaggeredGridLayoutManager(spans, ORIENTATION_PORTRAIT)
+                }
+            }
+        })
         return binding.root
     }
 
@@ -87,7 +92,7 @@ class MainFragment : Fragment() {
         val view: View = activity!!.findViewById(R.id.action_select_layout)
         val popup = PopupMenu(requireContext(), view).apply {
             inflate(R.menu.layout_selection_popup)
-            setOnMenuItemClickListener { setLayout(it.order);true }
+            setOnMenuItemClickListener { viewModel.layoutType.value = it.order;true }
         }
         MenuPopupHelper(context!!, popup.menu as MenuBuilder, view).apply {
             setForceShowIcon(true)
@@ -95,7 +100,8 @@ class MainFragment : Fragment() {
     }
 
 
-    private val subSection: SubSection? by lazy {
+    private
+    val subSection: SubSection? by lazy {
         when (viewModel.section) {
             Section.TOP -> SubSection(R.menu.top_menu, R.array.top_array, object : SubSection.SubAction {
                 override fun apply(data: String) {
@@ -113,6 +119,7 @@ class MainFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
+        menu.findItem(R.id.action_viral)?.isChecked = viewModel.isShowViral;
         subSection?.let {
             inflater.inflate(it.menu, menu)
 
@@ -145,15 +152,6 @@ class MainFragment : Fragment() {
             true
         }
         else -> super.onOptionsItemSelected(item)
-    }
-
-
-    private fun setLayout(type: Int) = binding.list.apply {
-        val spans = if (resources.configuration.orientation == ORIENTATION_PORTRAIT) 2 else 3
-        layoutManager = if (type == 0) {
-            LinearLayoutManager(requireContext())
-        } else
-            StaggeredGridLayoutManager(spans, ORIENTATION_PORTRAIT)
     }
 
 

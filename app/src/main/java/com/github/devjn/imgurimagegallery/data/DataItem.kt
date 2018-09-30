@@ -29,7 +29,6 @@ data class DataItem(
         val isAd: Boolean? = null,
         val adUrl: String? = null,
         val imagesCount: Int? = null,
-        val tags: List<TagsItem?>? = null,
         val layout: String? = null,
         val accountId: Int? = null,
         val coverWidth: Int? = null,
@@ -48,6 +47,5 @@ data class DataItem(
         val mp4: String? = null,
         val size: Int? = null,
         val width: Int? = null,
-        val animated: Boolean? = null,
-        val processing: Processing? = null
+        val animated: Boolean? = null
 ) : Serializable

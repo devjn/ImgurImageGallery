@@ -17,7 +17,7 @@ interface ImgurService {
 
     @GET("gallery/{section}/{sort}/{window}/{page}?showViral=bool")
     fun getGalley(@Path("section") section: String = "hot",
-                  @Path("sort") sort: String = "viral",
+                  @Path("sort") sort: String = "isShowViral",
                   @Path("window") window: String = "day",
                   @Path("page") page: Int = 0,
                   @Query("showViral") showViral: Boolean = false): Single<ImgurGalleryAlbum>

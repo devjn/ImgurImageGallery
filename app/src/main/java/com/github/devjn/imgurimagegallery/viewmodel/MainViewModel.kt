@@ -1,8 +1,6 @@
 package com.github.devjn.imgurimagegallery.viewmodel
 
 import android.util.Log
-import android.view.View
-import androidx.databinding.ObservableInt
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.github.devjn.imgurimagegallery.api.ImgurApi
@@ -15,38 +13,31 @@ import io.reactivex.schedulers.Schedulers
 
 class MainViewModel : ViewModel() {
 
-    val loadingBarVisibility = ObservableInt(View.GONE)
-    val emptyViewVisibility = ObservableInt(View.GONE)
+    val layoutType = MutableLiveData<Int>().apply { value = 2 }
     val data = MutableLiveData<ImgurGalleryAlbum>()
     private val compositeDisposable = CompositeDisposable()
 
     private var allData: ImgurGalleryAlbum? = null
-    private var viral = false
+    internal var isShowViral = false
+        private set
     internal var section = "";
     internal var window = "day"
-    internal var sort = "viral"
+    internal var sort = "isShowViral"
+
+    val imgurService: ImgurService = ImgurApi.createService(ImgurService::class.java)
 
     // This can be done cleaner using RxJava and Dagger but it's overhead for such small project
-    fun doRequest(imgurService: ImgurService = ImgurApi.createService(ImgurService::class.java)) {
-        imgurService.getGalley(section = section, sort = sort, window = window, showViral = viral)
+    fun doRequest() {
+        imgurService.getGalley(section = section, sort = sort, window = window, showViral = isShowViral)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ it ->
                     data.value = it
                     allData = it
                 }, { e -> Log.e("ERROR", "exception", e) }).disposeOnClear()
-
-//        loadingBarVisibility.set(View.VISIBLE)
-//        try {
-//            emptyViewVisibility.set(View.GONE)
-//        } catch (e: Exception) {
-//            Log.w(App.TAG, "Exception during loading movie data", e)
-//            emptyViewVisibility.set(View.VISIBLE)
-//        }
-//        loadingBarVisibility.set(View.GONE)
     }
 
-    fun toggleViral() = ++viral
+    fun toggleViral() = ++isShowViral
 
 
     private fun Disposable.disposeOnClear() {
