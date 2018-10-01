@@ -23,7 +23,8 @@
                 android:id="@+id/parent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:aspectRatio="1.0">
+                app:aspectRatio="1.0"
+                app:dataAspectRation="@{data}">
 
                 <ImageView
                     android:id="@+id/image"
@@ -31,18 +32,18 @@
                     android:layout_height="match_parent"
                     android:background="@android:color/darker_gray"
                     android:scaleType="fitXY"
-                    app:imageUrl="@{data.images.get(0).link}"
+                    app:imgurImage="@{data}"
                     tools:src="@drawable/ic_image"/>
 
             </com.github.devjn.imgurimagegallery.widgets.AspectRatioView>
 
             <TextView
                 android:id="@+id/title"
-                style="@style/TextAppearance.AppCompat.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/spacing_small"
                 android:text="@{data.title}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
                 tools:text="Title"/>
 
         </LinearLayout>

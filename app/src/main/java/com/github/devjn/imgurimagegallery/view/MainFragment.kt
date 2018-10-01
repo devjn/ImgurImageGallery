@@ -12,6 +12,7 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -22,7 +23,6 @@ import com.github.devjn.imgurimagegallery.Section
 import com.github.devjn.imgurimagegallery.SubSection
 import com.github.devjn.imgurimagegallery.data.DataItem
 import com.github.devjn.imgurimagegallery.databinding.FragmentMainBinding
-import com.github.devjn.imgurimagegallery.databinding.ListItemMovieStaggeredBinding
 import com.github.devjn.imgurimagegallery.utils.AndroidUtils
 import com.github.devjn.imgurimagegallery.viewmodel.MainViewModel
 import com.github.devjn.imgurimagegallery.widgets.GridSpacingItemDecoration
@@ -33,6 +33,10 @@ class MainFragment : Fragment() {
 
     companion object {
         private const val ARG_SECTION = "SECTION"
+
+        private const val LAYOUT_TYPE_LIST = 0
+        private const val LAYOUT_TYPE_GRID = 1
+        private const val LAYOUT_TYPE_STAGGERED = 2
 
         fun newInstance(section: String) = MainFragment().apply {
             arguments = Bundle().apply { putString(ARG_SECTION, section) }
@@ -70,8 +74,8 @@ class MainFragment : Fragment() {
             binding.list.apply {
                 val spans = if (resources.configuration.orientation == ORIENTATION_PORTRAIT) 2 else 3
                 layoutManager = when (it) {
-                    0 -> LinearLayoutManager(requireContext())
-                    1 -> GridLayoutManager(requireContext(), spans)
+                    LAYOUT_TYPE_LIST -> LinearLayoutManager(requireContext())
+                    LAYOUT_TYPE_GRID -> GridLayoutManager(requireContext(), spans)
                     else -> StaggeredGridLayoutManager(spans, ORIENTATION_PORTRAIT)
                 }
             }
@@ -170,17 +174,20 @@ class MainFragment : Fragment() {
                 notifyDataSetChanged()
             }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SimpleViewHolder(DataBindingUtil.inflate(
-                LayoutInflater.from(parent.context), R.layout.list_item_movie_staggered, parent, false))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SimpleViewHolder(
+                DataBindingUtil.inflate(LayoutInflater.from(parent.context),
+                        if (viewType == LAYOUT_TYPE_GRID) R.layout.list_item_grid else R.layout.list_item_staggered,
+                        parent, false))
 
         override fun onBindViewHolder(holder: SimpleViewHolder, position: Int) {
             holder.bind(data[position])
         }
 
+        override fun getItemViewType(position: Int) = viewModel.layoutType.value!!
         override fun getItemId(position: Int) = data[position].datetime
         override fun getItemCount() = data.size
 
-        inner class SimpleViewHolder(val binding: ListItemMovieStaggeredBinding) : RecyclerView.ViewHolder(binding.root) {
+        inner class SimpleViewHolder(val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
 
             init {
                 itemView.setOnClickListener {
@@ -189,11 +196,8 @@ class MainFragment : Fragment() {
             }
 
             fun bind(data: DataItem) {
-                data.images?.get(0)?.let {
-                    binding.parent.aspectRatio = it.width.toFloat() / it.height.toFloat()
-                }
                 binding.setVariable(BR.data, data)
-                binding.parent.requestLayout()
+                binding.setLifecycleOwner(this@MainFragment)
             }
         }
     }
