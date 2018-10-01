@@ -17,14 +17,15 @@ import com.github.devjn.moviessample.utils.GlideApp
 
 @BindingAdapter("imgurImage")
 fun ImageView.loadImgurImage(data: DataItem) {
+    //First check if there is gif image and if not load normal one
     val link = data.link
     if (!data.gifv.isNullOrEmpty()) {
         GlideApp.with(this).load(data.gifv).error(GlideApp.with(this).load(link)).placeholder(R.drawable.ic_image).into(this)
     } else {
-        GlideApp.with(this).load(data.images?.get(0)?.link).error(GlideApp.with(this).load(link)).placeholder(R.drawable.ic_image).into(this)
-    } /*else {
-        GlideApp.with(this).load(link).placeholder(R.drawable.ic_image).into(this)
-    }*/
+        GlideApp.with(this).load(data.images?.get(0)?.link)
+                .error(GlideApp.with(this).load(link))
+                .placeholder(R.drawable.ic_image).into(this)
+    }
 }
 
 @BindingAdapter("dataAspectRation")

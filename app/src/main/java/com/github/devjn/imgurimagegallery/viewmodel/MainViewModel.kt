@@ -3,8 +3,9 @@ package com.github.devjn.imgurimagegallery.viewmodel
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.github.devjn.imgurimagegallery.DataCenter
 import com.github.devjn.imgurimagegallery.Provider
-import com.github.devjn.imgurimagegallery.data.ImgurGalleryAlbum
+import com.github.devjn.moviessample.App
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -12,9 +13,9 @@ import io.reactivex.schedulers.Schedulers
 
 class MainViewModel : ViewModel() {
 
-    val layoutType = MutableLiveData<Int>().apply { value = 2 }
-    val data = MutableLiveData<ImgurGalleryAlbum>()
     private val compositeDisposable = CompositeDisposable()
+
+    val layoutType = MutableLiveData<Int>().apply { value = 2 }
 
     internal var isShowViral = false
         private set
@@ -26,9 +27,8 @@ class MainViewModel : ViewModel() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ it ->
-                Log.i("TAGG", "GALLERY = $it")
-                data.value = it
-            }, { e -> Log.e("ERROR", "exception", e) }).disposeOnClear()
+                DataCenter.galleryAlbumData.value = it
+            }, { e -> Log.e(App.TAG, "Exception during data request", e) }).disposeOnClear()
 
 
     fun toggleViral() = ++isShowViral

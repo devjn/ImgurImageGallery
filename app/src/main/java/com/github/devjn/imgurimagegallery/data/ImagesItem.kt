@@ -1,7 +1,5 @@
 package com.github.devjn.imgurimagegallery.data
 
-import java.io.Serializable
-
 data class ImagesItem(
 	val commentCount: Any? = null,
 	val inMostViral: Boolean? = null,
@@ -34,4 +32,4 @@ data class ImagesItem(
 	val animated: Boolean? = null,
 	val ups: Any? = null,
 	val favorite: Boolean? = null
-) : Serializable
+)

@@ -17,10 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.*
-import com.github.devjn.imgurimagegallery.BR
-import com.github.devjn.imgurimagegallery.R
-import com.github.devjn.imgurimagegallery.Section
-import com.github.devjn.imgurimagegallery.SubSection
+import com.github.devjn.imgurimagegallery.*
 import com.github.devjn.imgurimagegallery.data.DataItem
 import com.github.devjn.imgurimagegallery.databinding.FragmentMainBinding
 import com.github.devjn.imgurimagegallery.utils.AndroidUtils
@@ -64,9 +61,8 @@ class MainFragment : Fragment() {
         }
         adapter = Adapter(object : ClickListener {
             override fun onClick(data: DataItem) {
-                startActivity(Intent(activity, DetailsActivity::class.java).apply {
-                    putExtra("data", data)
-                })
+                DataCenter.selectedDataItem = data
+                startActivity(Intent(activity, DetailsActivity::class.java))
             }
         })
         binding.list.adapter = adapter
@@ -85,7 +81,7 @@ class MainFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel.data.observe(this, Observer { data ->
+        DataCenter.galleryAlbumData.observe(this, Observer { data ->
             data?.data?.let {
                 adapter.data = it
             }
@@ -123,7 +119,7 @@ class MainFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        menu.findItem(R.id.action_viral)?.isChecked = viewModel.isShowViral;
+        menu.findItem(R.id.action_viral)?.isChecked = viewModel.isShowViral
         subSection?.let {
             inflater.inflate(it.menu, menu)
 
